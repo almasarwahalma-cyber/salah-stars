@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salah Stars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm, playful, gentle, made for a 5 and 8 year old
+   IDEA: a sticker book you fill each day after your five prayers
+   PICTURE: the five prayer checkboxes as big sky-to-night cards, with today's sticker slot
+   COLOUR and TYPE: peach, sage, mauve, plum, sky; Fredoka rounded with Amiri for Arabic names
+   LAYOUT: kid tabs on top, today's prayers, sticker + gift progress, then the month sticker book and gift list */
+:root{color-scheme:light dark;
+--peach:#fcd0a1;--sage:#b1b695;--mauve:#a690a4;--plum:#5e4b56;--sky:#afd2e9;
+--bg:light-dark(#fff7ee,#2b2128);--card:light-dark(#ffffff,#3a2d36);--ink:light-dark(#3f3139,#fbeee2);
+--soft:light-dark(#7a6672,#d8c6d2);--line:light-dark(#efdccb,#4d3d47)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Fredoka",system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:980px;margin:0 auto;padding:0 max(4vw,14px) 48px}
+header{background:var(--plum);color:#fff7ee;padding:22px max(4vw,14px) 64px;position:relative;overflow:hidden}
+header .in{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+h1{font-size:clamp(32px,6vw,48px);line-height:1.05;margin:0;font-weight:700}
+header p{margin:4px 0 0;color:var(--peach);font-size:17px}
+.sky-deco{position:absolute;inset:0;pointer-events:none;opacity:.9}
+.kids{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:-40px;position:relative}
+.kid{border:0;border-radius:22px;padding:14px 16px;font:inherit;font-size:20px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--plum);box-shadow:0 4px 0 rgba(94,75,86,.25);min-height:72px;text-align:start}
+.kid .av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff8;flex:none;font-size:22px}
+.kid small{display:block;font-size:14px;font-weight:500;opacity:.8}
+.kid[aria-pressed=false]{opacity:.55;transform:scale(.97)}
+.kid:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--mauve);outline-offset:3px}
+.card{background:var(--card);border-radius:26px;padding:clamp(16px,3vw,26px);margin-top:18px;box-shadow:0 2px 0 var(--line)}
+.dayrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.dayrow h2{margin:0;font-size:24px;text-align:center;flex:1}
+.dayrow h2 small{display:block;font-size:14px;color:var(--soft);font-weight:400}
+.nav{width:48px;height:48px;border-radius:50%;border:0;background:var(--peach);color:var(--plum);font:700 24px "Fredoka";cursor:pointer}
+.nav:disabled{opacity:.3;cursor:default}
+.prayers{display:grid;gap:10px}
+.pr{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:20px;cursor:pointer;border:3px solid transparent;transition:transform .15s}
+.pr:active{transform:scale(.98)}
+.pr input{position:absolute;opacity:0;pointer-events:none}
+.pr .ic{width:46px;height:46px;flex:none}
+.pr .nm{flex:1;font-size:21px;font-weight:600;color:#3f3139}
+.pr .nm small{display:block;font-size:14px;font-weight:400;opacity:.75}
+.pr .ar{font-family:"Amiri",serif;font-size:24px;color:#5e4b56}
+.box{width:44px;height:44px;border-radius:14px;background:#fff;border:3px solid #5e4b56;display:grid;place-items:center;flex:none}
+.box svg{width:28px;height:28px;opacity:0;transform:scale(.4);transition:.2s}
+.pr input:checked~.box{background:#5e4b56}
+.pr input:checked~.box svg{opacity:1;transform:none}
+.pr input:focus-visible~.box{outline:3px solid var(--mauve);outline-offset:3px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.grid2 .card{margin-top:18px}
+.slot{display:flex;align-items:center;gap:16px}
+.slot .stk{width:96px;height:96px;flex:none;border-radius:50%;background:var(--bg);border:3px dashed var(--line);display:grid;place-items:center}
+.slot .stk.on{border:0;background:none;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.3) rotate(-20deg)}70%{transform:scale(1.15)}100%{transform:none}}
+h3{margin:0 0 6px;font-size:20px}
+.muted{color:var(--soft);font-size:15px;margin:0}
+.bar{height:22px;border-radius:12px;background:var(--line);overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--mauve));border-radius:12px;transition:width .4s}
+.big{font-size:34px;font-weight:700;line-height:1}
+.gift{background:var(--peach);color:#3f3139;border-radius:20px;padding:14px;margin-top:10px}
+.boxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.pick{border:0;background:#fff8;border-radius:18px;padding:8px;cursor:pointer;min-height:44px;animation:wiggle 2s infinite}
+.pick:nth-child(2){animation-delay:.3s}.pick:nth-child(3){animation-delay:.6s}
+.pick svg{width:100%;height:auto;display:block}
+.pick.open{animation:pop .45s;transform:scale(1.2)}
+@keyframes wiggle{0%,80%,100%{transform:none}85%{transform:rotate(-6deg)}90%{transform:rotate(6deg)}95%{transform:rotate(-3deg)}}
+.reveal{text-align:center;animation:pop .5s}
+.won{font-size:26px;font-weight:700;margin:6px 0;line-height:1.2}
+.btn{border:0;border-radius:14px;background:var(--plum);color:#fff7ee;font:600 16px "Fredoka";padding:10px 16px;min-height:44px;cursor:pointer}
+.btn.lite{background:var(--sage);color:#3f3139}
+.book{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:10px}
+.book .d{aspect-ratio:1;border-radius:12px;background:var(--bg);display:grid;place-items:center;font-size:13px;color:var(--soft);position:relative}
+.book .d svg{width:88%;height:88%}
+.book .d.today{outline:2px solid var(--mauve)}
+.book .wk{font-size:12px;text-align:center;color:var(--soft)}
+.giftlist{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}
+.giftlist li{display:flex;gap:10px;align-items:baseline;padding:8px 12px;border-radius:12px;background:var(--bg)}
+.giftlist b{flex:none;width:58px;color:var(--mauve)}
+.giftlist li.got{opacity:.5;text-decoration:line-through}
+.giftlist li.next{background:var(--peach);color:#3f3139}
+.rename{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.rename input{font:16px "Fredoka";padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);flex:1;min-width:140px}
+.status{font-size:13px;color:var(--soft);text-align:center;margin-top:24px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:9}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}.grid2 .card+.card{margin-top:0}.pr .ar{display:none}.kid{font-size:17px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <svg class="sky-deco" viewBox="0 0 1000 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <circle cx="880" cy="60" r="34" fill="#fcd0a1"/><circle cx="896" cy="50" r="30" fill="#5e4b56"/>
+    <g fill="#afd2e9"><circle cx="120" cy="40" r="3"/><circle cx="300" cy="90" r="2.5"/><circle cx="520" cy="30" r="3"/><circle cx="700" cy="110" r="2"/><circle cx="780" cy="30" r="2.5"/><circle cx="960" cy="140" r="3"/></g>
+    <path d="M0 200 Q250 150 500 185 T1000 170 V200Z" fill="#a690a4" opacity=".5"/>
+  </svg>
+  <div class="in"><div><h1>Salah Stars</h1><p>Pray all five, earn a sticker. 30 stickers = a gift!</p></div></div>
+</header>
+
+<div class="wrap">
+  <div class="kids" id="kids"></div>
+
+  <section class="card">
+    <div class="dayrow">
+      <button class="nav" id="prev" aria-label="Previous day">‹</button>
+      <h2 id="dayTitle"></h2>
+      <button class="nav" id="next" aria-label="Next day">›</button>
+    </div>
+    <div class="prayers" id="prayers"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="slot">
+        <div class="stk" id="todayStk"></div>
+        <div><h3 id="slotTitle"></h3><p class="muted" id="slotSub"></p></div>
+      </div>
+    </section>
+    <section class="card">
+      <h3>Prize progress</h3>
+      <div><span class="big" id="prog"></span> <span class="muted">stickers toward the next prize</span></div>
+      <div class="bar"><i id="barFill"></i></div>
+      <p class="muted" id="nextGift"></p>
+      <div id="giftReady"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="dayrow" style="margin-bottom:4px">
+      <button class="nav" id="mPrev" aria-label="Previous month">‹</button>
+      <h2 id="monthTitle"></h2>
+      <button class="nav" id="mNext" aria-label="Next month">›</button>
+    </div>
+    <p class="muted" style="text-align:center" id="total"></p>
+    <div class="book" id="book"></div>
+  </section>
+
+  <section class="card">
+    <h3>Grown-ups only</h3>
+    <div id="gate">
+      <p class="muted">Grown-ups, answer this to see prizes and mark them paid.</p>
+      <div class="rename"><label for="gateIn" id="gateQ" style="align-self:center;font-weight:600"></label>
+      <input id="gateIn" inputmode="numeric" autocomplete="off" style="max-width:140px">
+      <button class="btn" id="gateBtn">Open</button></div>
+      <p class="muted" id="gateMsg" role="status"></p>
+    </div>
+    <div id="secret" hidden>
+    <p class="muted">Every 30 stickers, they open a mystery box and win a random amount from $5 to $20. Tap "Paid!" once you've given it to them.</p>
+    <div id="giftOwed"></div>
+    <ul class="giftlist" id="gifts"></ul>
+    <div class="rename">
+      <input id="nameIn" maxlength="20" aria-label="Name">
+      <button class="btn lite" id="saveName">Change name</button>
+    </div>
+    <div style="margin-top:10px"><button class="btn lite" id="lock">Hide again</button></div>
+    </div>
+  </section>
+
+  <p class="status" id="status">Loading…</p>
+</div>
+
+<script>
+{
+const PRAYERS=[
+ {k:"fajr",n:"Fajr",ar:"الفجر",t:"Dawn",bg:"#afd2e9"},
+ {k:"dhuhr",n:"Dhuhr",ar:"الظهر",t:"Midday",bg:"#fcd0a1"},
+ {k:"asr",n:"Asr",ar:"العصر",t:"Afternoon",bg:"#b1b695"},
+ {k:"maghrib",n:"Maghrib",ar:"المغرب",t:"Sunset",bg:"#e7b9a6"},
+ {k:"isha",n:"Isha",ar:"العشاء",t:"Night",bg:"#c9b6c7"}];
+const ICONS={
+ fajr:'<svg viewBox="0 0 48 48" class="ic"><path d="M4 34h40" stroke="#5e4b56" stroke-width="3" stroke-linecap="round"/><path d="M12 34a12 12 0 0 1 24 0" fill="#fcd0a1" stroke="#5e4b56" stroke-width="3"/><path d="M24 10v6M10 18l4 4M38 18l-4 4" stroke="#5e4b56" stroke-width="3" stroke-linecap="round"/></svg>',
+ dhuhr:'<svg viewBox="0 0 48 48" class="ic"><circle cx="24" cy="24" r="10" fill="#fff3c4" stroke="#5e4b56" stroke-width="3"/><g stroke="#5e4b56" stroke-width="3" stroke-linecap="round"><path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4 4M34 34l4 4M38 10l-4 4M14 34l-4 4"/></g></svg>',
+ asr:'<svg viewBox="0 0 48 48" class="ic"><circle cx="20" cy="20" r="9" fill="#fcd0a1" stroke="#5e4b56" stroke-width="3"/><path d="M16 38h20a7 7 0 0 0 0-14 10 10 0 0 0-19 3 6 6 0 0 0-1 11z" fill="#fff" stroke="#5e4b56" stroke-width="3"/></svg>',
+ maghrib:'<svg viewBox="0 0 48 48" class="ic"><path d="M10 32a14 14 0 0 1 28 0z" fill="#f4a582" stroke="#5e4b56" stroke-width="3"/><path d="M4 32h40M10 39h28" stroke="#5e4b56" stroke-width="3" stroke-linecap="round"/></svg>',
+ isha:'<svg viewBox="0 0 48 48" class="ic"><path d="M30 8a16 16 0 1 0 10 26A13 13 0 0 1 30 8z" fill="#fcd0a1" stroke="#5e4b56" stroke-width="3"/><path d="M38 10l1.5 3 3 1.5-3 1.5L38 19l-1.5-3-3-1.5 3-1.5z" fill="#fff"/></svg>'};
+const CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const STK=[
+ c=>`<svg viewBox="0 0 100 100"><path d="M50 6l12 28 30 3-23 20 7 30-26-16-26 16 7-30L8 37l30-3z" fill="${c}" stroke="#5e4b56" stroke-width="5" stroke-linejoin="round"/><circle cx="40" cy="48" r="4" fill="#5e4b56"/><circle cx="60" cy="48" r="4" fill="#5e4b56"/><path d="M42 60q8 7 16 0" fill="none" stroke="#5e4b56" stroke-width="4" stroke-linecap="round"/></svg>`,
+ c=>`<svg viewBox="0 0 100 100"><path d="M62 10a40 40 0 1 0 26 66A34 34 0 0 1 62 10z" fill="${c}" stroke="#5e4b56" stroke-width="5"/><path d="M78 20l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#fcd0a1" stroke="#5e4b56" stroke-width="3"/></svg>`,
+ c=>`<svg viewBox="0 0 100 100"><path d="M50 6v10" stroke="#5e4b56" stroke-width="5"/><path d="M36 22h28l-4 8H40z" fill="#5e4b56"/><path d="M32 30h36q6 24 0 50H32q-6-26 0-50z" fill="${c}" stroke="#5e4b56" stroke-width="5"/><path d="M50 42q9 12 0 24q-9-12 0-24z" fill="#fff3c4"/><path d="M38 80h24v8H38z" fill="#5e4b56"/></svg>`,
+ c=>`<svg viewBox="0 0 100 100"><g fill="${c}" stroke="#5e4b56" stroke-width="5"><circle cx="50" cy="26" r="16"/><circle cx="74" cy="44" r="16"/><circle cx="64" cy="72" r="16"/><circle cx="36" cy="72" r="16"/><circle cx="26" cy="44" r="16"/></g><circle cx="50" cy="50" r="12" fill="#fcd0a1" stroke="#5e4b56" stroke-width="5"/></svg>`,
+ c=>`<svg viewBox="0 0 100 100"><path d="M50 88S10 62 10 36a20 20 0 0 1 40-6 20 20 0 0 1 40 6c0 26-40 52-40 52z" fill="${c}" stroke="#5e4b56" stroke-width="5" stroke-linejoin="round"/><path d="M28 34a8 8 0 0 1 8-8" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`];
+const SC=["#afd2e9","#fcd0a1","#b1b695","#a690a4","#f4a582"];
+const GIFTS={
+ k1:["Hot Wheels 5-car pack","Monster truck toy","Small LEGO Classic brick box","Play-Doh party pack","Kinetic sand set","Dinosaur figure set","Uno or Candy Land","Bubble machine","Crayola coloring kit","Remote control car (small)"],
+ k2:["Crayola art kit","Slime making kit","Small LEGO Classic brick box","Paint-your-own craft kit","Friendship bracelet kit","Kinetic sand set","Uno or Connect 4","100-piece jigsaw puzzle","Sticker book + gel pens","Jump rope + sidewalk chalk"]};
+const KIDS=[{id:"k1",def:"Adam",col:"#afd2e9"},{id:"k2",def:"Sarah",col:"#fcd0a1"}];
+const blank=k=>({name:KIDS.find(x=>x.id===k).def,days:{},won:[]});
+const BOX=(c,r)=>`<svg viewBox="0 0 100 100"><rect x="14" y="40" width="72" height="50" rx="6" fill="${c}" stroke="#5e4b56" stroke-width="5"/><rect x="8" y="28" width="84" height="16" rx="5" fill="${c}" stroke="#5e4b56" stroke-width="5"/><path d="M44 28h12v62H44z" fill="${r}" stroke="#5e4b56" stroke-width="4"/><path d="M50 28C38 8 22 14 30 26M50 28C62 8 78 14 70 26" fill="none" stroke="#5e4b56" stroke-width="5" stroke-linecap="round"/><text x="50" y="74" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="22" fill="#5e4b56">?</text></svg>`;
+const state={k1:blank("k1"),k2:blank("k2")};
+let cur="k1",db=null,local=false;
+const pad=n=>String(n).padStart(2,"0");
+const keyOf=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=new Date();today.setHours(0,0,0,0);
+let day=new Date(today),month=new Date(today.getFullYear(),today.getMonth(),1);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
+const sticker=k=>STK[hash(k)%STK.length](SC[hash(k+"c")%SC.length]);
+const full=(kid,k)=>{const a=kid.days[k];return Array.isArray(a)&&a.length===5&&a.every(Boolean)};
+const count=kid=>Object.keys(kid.days).filter(k=>full(kid,k)).length;
+const clean=(d,k)=>{const o=blank(k);if(!d||typeof d!=="object")return o;
+ if(typeof d.name==="string"&&d.name.trim()&&!/^Little (brother|sister)$/.test(d.name))o.name=d.name.slice(0,20);
+ if(d.days&&typeof d.days==="object")for(const[x,v]of Object.entries(d.days))if(/^\d{4}-\d\d-\d\d$/.test(x)&&Array.isArray(v))o.days[x]=v.slice(0,5).map(Boolean);
+ if(Array.isArray(d.won))o.won=d.won.filter(w=>w&&typeof w.g==="string").slice(0,200).map(w=>({g:w.g.slice(0,80),got:!!w.got}));return o};
+let reveal=null;
+
+function render(){
+ const kid=state[cur],k=keyOf(day),arr=kid.days[k]||[0,0,0,0,0];
+ $("kids").innerHTML=KIDS.map(x=>`<button class="kid" data-k="${x.id}" aria-pressed="${x.id===cur}" style="background:${x.col}"><span class="av">${STK[x.id==="k1"?1:0](x.id==="k1"?"#fcd0a1":"#afd2e9")}</span><span>${esc(state[x.id].name)}<small>${count(state[x.id])} stickers</small></span></button>`).join("");
+ const isT=+day===+today,yest=+day===+today-864e5;
+ $("dayTitle").innerHTML=`${isT?"Today":yest?"Yesterday":day.toLocaleDateString(undefined,{weekday:"long"})}<small>${day.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}</small>`;
+ $("next").disabled=isT;
+ $("prayers").innerHTML=PRAYERS.map((p,i)=>`<label class="pr" style="background:${p.bg}">${ICONS[p.k]}<span class="nm">${p.n}<small>${p.t}</small></span><span class="ar" lang="ar">${p.ar}</span><input type="checkbox" data-i="${i}" ${arr[i]?"checked":""}><span class="box">${CHECK}</span></label>`).join("");
+ const done=arr.filter(Boolean).length,s=$("todayStk");
+ if(done===5){s.className="stk on";s.innerHTML=sticker(k);$("slotTitle").textContent="Sticker earned!";$("slotSub").textContent=`MashaAllah, all 5 prayers ${isT?"today":"this day"}.`}
+ else{s.className="stk";s.innerHTML=`<span class="big" style="font-size:26px;color:var(--soft)">${done}/5</span>`;$("slotTitle").textContent=`${5-done} more to go`;$("slotSub").textContent="Check all five prayers to get a sticker."}
+ const n=count(kid),earned=Math.floor(n/30),g=GIFTS[cur],into=n%30;
+ $("prog").textContent=`${into}/30`;$("barFill").style.width=(into/30*100)+"%";
+ $("nextGift").textContent=`${30-into} more sticker${30-into===1?"":"s"} until a mystery prize!`;
+ const owed=earned-kid.won.length,waiting=kid.won.filter(w=>!w.got);
+ let gr="";
+ if(reveal&&reveal.kid===cur)gr=`<div class="gift reveal"><b>You won</b><div class="won" style="font-size:52px">${esc(reveal.g)}</div>A grown-up will give it to you!</div>`;
+ else if(owed>0)gr=`<div class="gift"><b>You unlocked a mystery prize!</b> Pick a box to open:<div class="boxes">${[["#afd2e9","#a690a4"],["#fcd0a1","#b1b695"],["#b1b695","#fcd0a1"]].map(([c,r],i)=>`<button class="pick" data-p="${i}" aria-label="Mystery box ${i+1}">${BOX(c,r)}</button>`).join("")}</div>${owed>1?`<small>${owed} prizes to open!</small>`:""}</div>`;
+ else if(waiting.length)gr=`<p class="muted">Waiting for: <b>${waiting.map(w=>esc(w.g)).join(", ")}</b></p>`;
+ $("giftReady").innerHTML=gr;
+ $("giftOwed").innerHTML=(owed>0?`<p class="muted"><b>${owed}</b> mystery box${owed>1?"es":""} not opened yet.</p>`:"")+(kid.won.length?`<ul class="giftlist">${kid.won.map((w,i)=>`<li class="${w.got?"got":"next"}"><span style="flex:1">${esc(w.g)}</span>${w.got?"Paid":`<button class="btn" data-w="${i}">Paid!</button>`}</li>`).slice().reverse().join("")}</ul>`:`<p class="muted">No prizes won yet.</p>`);
+ const owedAmt=kid.won.filter(w=>!w.got).reduce((s,w)=>s+(parseInt(w.g.slice(1))||0),0);
+ $("gifts").innerHTML=owedAmt?`<li class="next"><span style="flex:1">Total still owed to ${esc(kid.name)}</span><b style="width:auto">$${owedAmt}</b></li>`:"";
+ $("nameIn").value=kid.name;
+ $("monthTitle").textContent=month.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+ $("mNext").disabled=month.getFullYear()===today.getFullYear()&&month.getMonth()===today.getMonth();
+ const y=month.getFullYear(),m=month.getMonth(),dim=new Date(y,m+1,0).getDate(),off=new Date(y,m,1).getDay();
+ let mc=0,cells=["S","M","T","W","T","F","S"].map(w=>`<div class="wk">${w}</div>`).join("")+"<div></div>".repeat(off);
+ for(let d=1;d<=dim;d++){const kk=`${y}-${pad(m+1)}-${pad(d)}`,f=full(kid,kk);if(f)mc++;cells+=`<div class="d${kk===keyOf(today)?" today":""}" title="${kk}">${f?sticker(kk):d}</div>`}
+ $("book").innerHTML=cells;
+ $("total").textContent=`${mc} sticker${mc===1?"":"s"} this month · ${n} total`;
+}
+
+const busy={},dirty={};
+async function save(k){
+ if(local){try{localStorage.setItem("salah-"+k,JSON.stringify(state[k]))}catch(e){}return}
+ if(!db)return;
+ if(busy[k]){dirty[k]=true;return}
+ busy[k]=true;
+ try{await db.doc("kids/"+k).set(JSON.parse(JSON.stringify(state[k])));$("status").textContent="Saved ✓ Progress is kept for both kids on any device."}
+ catch(e){$("status").textContent=e&&e.code==="invalid_argument"?"You can view this tracker but not change it.":"Couldn't save just now, try again in a moment."}
+ busy[k]=false;if(dirty[k]){dirty[k]=false;save(k)}
+}
+
+function confetti(){
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ const c=document.createElement("canvas");c.className="confetti";c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);
+ const x=c.getContext("2d"),ps=Array.from({length:90},()=>({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,c:SC[Math.random()*5|0],r:Math.random()*6+4}));
+ let t=0;(function f(){x.clearRect(0,0,c.width,c.height);for(const p of ps){p.x+=p.vx;p.y+=p.vy;p.vy+=.4;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.r,p.r)}if(++t<90)requestAnimationFrame(f);else c.remove()})();
+}
+
+document.addEventListener("click",e=>{
+ const kb=e.target.closest(".kid");if(kb){cur=kb.dataset.k;render();return}
+ const pk=e.target.closest(".pick");
+ if(pk){const kid=state[cur],g=GIFTS[cur];if(Math.floor(count(kid)/30)<=kid.won.length)return;
+  const pickG="$"+(5+Math.floor(Math.random()*16));kid.won.push({g:pickG,got:false});
+  pk.classList.add("open");setTimeout(()=>{reveal={kid:cur,g:pickG};render();confetti();save(cur);
+   setTimeout(()=>{if(reveal&&reveal.g===pickG){reveal=null;render()}},8000)},450);return}
+ const wb=e.target.closest("[data-w]");
+ if(wb){const w=state[cur].won[+wb.dataset.w];if(w){w.got=true;render();save(cur)}}
+});
+$("prayers").addEventListener("change",e=>{
+ const i=+e.target.dataset.i,k=keyOf(day),kid=state[cur],a=(kid.days[k]||[false,false,false,false,false]).slice();
+ const before=a.every(Boolean);a[i]=e.target.checked;kid.days[k]=a;
+ const before30=Math.floor((count(kid)-(a.every(Boolean)&&!before?1:0))/30);
+ render();save(cur);
+ if(a.every(Boolean)&&!before){confetti();if(Math.floor(count(kid)/30)>before30)setTimeout(confetti,600)}
+});
+$("prev").onclick=()=>{day=new Date(day.getFullYear(),day.getMonth(),day.getDate()-1);render()};
+$("next").onclick=()=>{if(+day<+today){day=new Date(day.getFullYear(),day.getMonth(),day.getDate()+1);render()}};
+$("mPrev").onclick=()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);render()};
+$("mNext").onclick=()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);render()};
+$("saveName").onclick=()=>{const v=$("nameIn").value.trim();if(v){state[cur].name=v.slice(0,20);render();save(cur)}};
+$("nameIn").addEventListener("keydown",e=>{if(e.key==="Enter")$("saveName").click()});
+let ga=0;
+const newQ=()=>{const a=12+Math.floor(Math.random()*8),b=6+Math.floor(Math.random()*4);ga=a*b;$("gateQ").textContent=`What is ${a} × ${b}?`;$("gateIn").value=""};
+newQ();
+$("gateBtn").onclick=()=>{if(+$("gateIn").value===ga){$("gate").hidden=true;$("secret").hidden=false;$("gateMsg").textContent=""}else{$("gateMsg").textContent="Not quite, try this one.";newQ()}};
+$("gateIn").addEventListener("keydown",e=>{if(e.key==="Enter")$("gateBtn").click()});
+$("lock").onclick=()=>{$("secret").hidden=true;$("gate").hidden=false;newQ()};
+
+function useLocal(){local=true;for(const k of["k1","k2"]){try{const v=localStorage.getItem("salah-"+k);if(v)state[k]=clean(JSON.parse(v),k)}catch(e){}}
+ $("status").textContent="Saving on this device only.";render()}
+
+render();
+const timer=setTimeout(()=>{if(!db)useLocal();else $("status").textContent="Can't reach saved progress yet, it may be out of date."},10000);
+(async()=>{
+ try{db=await window.claude?.use?.("db")}catch(e){db=null}
+ if(!db){clearTimeout(timer);useLocal();return}
+ for(const k of["k1","k2"]){
+  db.doc("kids/"+k).onSnapshot(s=>{
+   if(!s.metadata.hasPendingWrites&&!busy[k]){state[k]=clean(s.exists?s.data():null,k);render()}
+   if(!s.metadata.fromCache){clearTimeout(timer);if(/Loading/.test($("status").textContent))$("status").textContent="Progress is saved for both kids on any device."}
+  },()=>{clearTimeout(timer);$("status").textContent="Couldn't load saved progress."});
+ }
+})();
+}
+</script>
+</body>
+</html>
